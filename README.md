@@ -14,10 +14,10 @@ The system is composed of several packages, each responsible for a different asp
 ```plaintext
 │   README.md
 │   UMLDiagram.txt
-│   
+│
 └───pseudo
     │   main.py
-    │   
+    │
     ├───controller
     │       ball_collection.py
     │       ball_shooting.py
@@ -58,108 +58,241 @@ The system is composed of several packages, each responsible for a different asp
 ```
 
 ## Detailed Design
-![UML Diagram](https://www.plantuml.com/plantuml/svg/lLPTJziy5BxFhuXwrRxGI2-NqLHHKiGgKLgHxcgQa9kSjHQE7TaEY4tyzuNOr2Uc3HHrorNjvtmyv-Fuz5nf8dLLiA0asJrPGzXBX8HU-3i8wszxUVa0N9jRysMCA1KsrnULQW3t3KDLhLGcwGgaYiCPARyqaikd4ax3QwgqENybF6SWHwEMzedJxiEhMXmY2nkZ5uVOoi0pKbOhHjN6cB2YJkOvsFu4NXNEkXVArNXskHXFxgOtYs_B5f9UtgJpsxl9U3bktS_co_ewcSzcuvj92ucYQ9T_oZN8doG3Gy8ZS1AkeI7M7w0STDl1QV7DsUJjJGioYbgYA2fECwAfuBWBdCkMo48ABJB1VD-rFDMKCFghZiQ3992yJ_9SWbBnY-7J-cfDbGRP7EleLqyQll_mz1ubrR1FqHnpeichDWxLQ-RfMR8bJekIGG5SgzsHUQhfOlfPrQl5T7wOxdFm7BXndS03pK2zcTWfBokzkrODPFGSZiimYAqCqMH_lgv80IN94UaFMRPgtROJmOHCWIiXFsP_69OsHt5Nsdqsnb4tbsjQK9q-Kfrj_YwNbH0C27zd6EULtblP6lD9-PEIrOG8psChcvXZnrZCX6uLmIWU8tAVad7rFgCKv8Fu9uoCgnsCtivX8hYMWZ6GPXOjMzid3ZMOvGPsVyRRJOf0wXfCnMPhefuR1MZLrPORIFK7g6TS0QdWZW7EdDiKXp0hX1RobLDJj57mteBnMLqGnf8NFjcnsL6koJqqj6nBVOfSAgIcV7rCPfbxrMByn24HPRmsVMVRxs3swKQ8OrDNrYPEAu89NpCud3GUeFH9QIZQitChLa8RuC2vSR77_WJYWhYXZNVyBmqw_hcOQrdnFWe6ynqEHuwT3_YKVBptVnJzrslLAWWyfRO77tHMyAOA0lSQOC6pHj1K5K-cB-b4t7nWt7LrfvHf4TodlWiFz3G3l7oZQBJdQNTxeLFi77XU5UmF)
+
+```mermaid
+classDiagram
+    %% Core
+    class EventBus {
+        -subscribers: Map<EventType, List<EventHandler>>
+        +subscribe(eventType: EventType, handler: EventHandler)
+        +publish(event: Event)
+    }
+    class EventType {
+        <<enumeration>>
+        GAMEPAD_INPUT
+        SENSOR_DATA
+        MOTOR_COMMAND
+    }
+    class Event {
+        <<interface>>
+        +getType() EventType
+    }
+    class EventHandler {
+        <<interface>>
+        +handle(event: Event)
+    }
+    class CommunicationProtocol {
+        <<interface>>
+        +initialize()
+        +read(address: int, register: int) byte[]
+        +write(address: int, register: int, data: byte[])
+    }
+    class I2CProtocol
+    class SPIProtocol
+    class GPIOProtocol
+
+    %% Devices
+    class InputDevice {
+        <<interface>>
+        +read() InputData
+    }
+    class Gamepad {
+        +read() GamepadData
+    }
+    class ColorSensor {
+        -protocol: CommunicationProtocol
+        +read() ColorData
+    }
+    class LimitSwitch {
+        -protocol: CommunicationProtocol
+        +read() boolean
+    }
+    class OutputDevice {
+        <<interface>>
+        +write(command: OutputCommand)
+    }
+    class Motor {
+        -protocol: CommunicationProtocol
+        +write(command: MotorCommand)
+    }
+    class Servo {
+        -protocol: CommunicationProtocol
+        +write(command: ServoCommand)
+    }
+
+    %% Controllers
+    class InputController {
+        -eventBus: EventBus
+        -inputDevices: List<InputDevice>
+        +pollInputs()
+    }
+    class MotionController {
+        -eventBus: EventBus
+        -motors: List<Motor>
+        +handle(event: Event)
+    }
+    class BallCollectionController {
+        -eventBus: EventBus
+        -intakeMotor: Motor
+        +handle(event: Event)
+    }
+    class BallSortingController {
+        -eventBus: EventBus
+        -colorSensor: ColorSensor
+        -sortingServo: Servo
+        +handle(event: Event)
+    }
+    class ShootingController {
+        -eventBus: EventBus
+        -shootingMotor: Motor
+        -angleServo: Servo
+        +handle(event: Event)
+    }
+
+    %% System
+    class RobotSystem {
+        -eventBus: EventBus
+        -inputController: InputController
+        -controllers: List<EventHandler>
+        +initialize()
+        +run()
+    }
+
+    %% Relationships
+    CommunicationProtocol <|-- I2CProtocol
+    CommunicationProtocol <|-- SPIProtocol
+    CommunicationProtocol <|-- GPIOProtocol
+    InputDevice <|-- Gamepad
+    InputDevice <|-- ColorSensor
+    InputDevice <|-- LimitSwitch
+    OutputDevice <|-- Motor
+    OutputDevice <|-- Servo
+    EventHandler <|-- MotionController
+    EventHandler <|-- BallCollectionController
+    EventHandler <|-- BallSortingController
+    EventHandler <|-- ShootingController
+    RobotSystem --> EventBus
+    RobotSystem --> InputController
+    RobotSystem --> "*" EventHandler
+    InputController --> EventBus
+    InputController --> "*" InputDevice
+    MotionController --> "*" Motor
+    BallCollectionController --> Motor
+    BallSortingController --> ColorSensor
+    BallSortingController --> Servo
+    ShootingController --> Motor
+    ShootingController --> Servo
+    InputDevice ..> CommunicationProtocol
+    OutputDevice ..> CommunicationProtocol
+```
 
 ### Core Package
 
 #### Event
 
 1. **EventBus**
-   - **Description**: Central hub for event management, handling subscription and publication of events.
-   - **Attributes**: 
-     - `subscribers`: A map of `EventType` to a list of `EventHandler` instances.
-   - **Methods**:
-     - `subscribe(eventType: EventType, handler: EventHandler)`: Registers an event handler for a specific event type.
-     - `publish(event: Event)`: Publishes an event to all subscribed handlers.
+
+    - **Description**: Central hub for event management, handling subscription and publication of events.
+    - **Attributes**:
+        - `subscribers`: A map of `EventType` to a list of `EventHandler` instances.
+    - **Methods**:
+        - `subscribe(eventType: EventType, handler: EventHandler)`: Registers an event handler for a specific event type.
+        - `publish(event: Event)`: Publishes an event to all subscribed handlers.
 
 2. **EventType**
-   - **Description**: Enum defining different types of events.
-   - **Values**: `GAMEPAD_INPUT`, `SENSOR_DATA`, `MOTOR_COMMAND`, etc.
+
+    - **Description**: Enum defining different types of events.
+    - **Values**: `GAMEPAD_INPUT`, `SENSOR_DATA`, `MOTOR_COMMAND`, etc.
 
 3. **Event**
-   - **Description**: Interface representing an event.
-   - **Methods**: 
-     - `getType(): EventType`: Returns the type of the event.
+
+    - **Description**: Interface representing an event.
+    - **Methods**:
+        - `getType(): EventType`: Returns the type of the event.
 
 4. **EventHandler**
-   - **Description**: Interface for handling events.
-   - **Methods**: 
-     - `handle(event: Event)`: Handles the event.
+    - **Description**: Interface for handling events.
+    - **Methods**:
+        - `handle(event: Event)`: Handles the event.
 
 #### Communication
 
 1. **CommunicationProtocol**
-   - **Description**: Interface for different communication protocols.
-   - **Methods**:
-     - `initialize()`: Initializes the protocol.
-     - `read(address: int, register: int): byte[]`: Reads data from a device.
-     - `write(address: int, register: int, data: byte[])`: Writes data to a device.
+
+    - **Description**: Interface for different communication protocols.
+    - **Methods**:
+        - `initialize()`: Initializes the protocol.
+        - `read(address: int, register: int): byte[]`: Reads data from a device.
+        - `write(address: int, register: int, data: byte[])`: Writes data to a device.
 
 2. **I2CProtocol, SPIProtocol, GPIOProtocol**
-   - **Description**: Implementations of the `CommunicationProtocol` interface for I2C, SPI, and GPIO.
+    - **Description**: Implementations of the `CommunicationProtocol` interface for I2C, SPI, and GPIO.
 
 ### Devices Package
 
 #### Input
 
 1. **InputDevice**
-   - **Description**: Interface for input devices.
-   - **Methods**:
-     - `read(): InputData`: Reads data from the input device.
+
+    - **Description**: Interface for input devices.
+    - **Methods**:
+        - `read(): InputData`: Reads data from the input device.
 
 2. **Gamepad, ColorSensor, LimitSwitch**
-   - **Description**: Implementations of the `InputDevice` interface.
-   - **Attributes**: 
-     - `protocol`: The communication protocol used by the device.
-   - **Methods**:
-     - `read()`: Reads specific data from the device (e.g., `GamepadData`, `ColorData`, `boolean`).
+    - **Description**: Implementations of the `InputDevice` interface.
+    - **Attributes**:
+        - `protocol`: The communication protocol used by the device.
+    - **Methods**:
+        - `read()`: Reads specific data from the device (e.g., `GamepadData`, `ColorData`, `boolean`).
 
 #### Output
 
 1. **OutputDevice**
-   - **Description**: Interface for output devices.
-   - **Methods**:
-     - `write(command: OutputCommand)`: Writes a command to the output device.
+
+    - **Description**: Interface for output devices.
+    - **Methods**:
+        - `write(command: OutputCommand)`: Writes a command to the output device.
 
 2. **Motor, Servo**
-   - **Description**: Implementations of the `OutputDevice` interface.
-   - **Attributes**:
-     - `protocol`: The communication protocol used by the device.
-   - **Methods**:
-     - `write(command: MotorCommand/ServoCommand)`: Writes specific commands to the device.
+    - **Description**: Implementations of the `OutputDevice` interface.
+    - **Attributes**:
+        - `protocol`: The communication protocol used by the device.
+    - **Methods**:
+        - `write(command: MotorCommand/ServoCommand)`: Writes specific commands to the device.
 
 ### Controllers Package
 
 1. **InputController**
-   - **Description**: Manages input devices and polls them for data.
-   - **Attributes**:
-     - `eventBus`: The event bus for publishing events.
-     - `inputDevices`: A list of input devices.
-   - **Methods**:
-     - `pollInputs()`: Polls all input devices and publishes events.
+
+    - **Description**: Manages input devices and polls them for data.
+    - **Attributes**:
+        - `eventBus`: The event bus for publishing events.
+        - `inputDevices`: A list of input devices.
+    - **Methods**:
+        - `pollInputs()`: Polls all input devices and publishes events.
 
 2. **MotionController, BallCollectionController, BallSortingController, ShootingController**
-   - **Description**: Handle specific events and control corresponding devices.
-   - **Attributes**:
-     - `eventBus`: The event bus for subscribing to events.
-     - `motors`: A list of motors (specific to `MotionController`).
-     - `intakeMotor`: The motor for intake (specific to `BallCollectionController`).
-     - `colorSensor`, `sortingServo`: Devices for sorting (specific to `BallSortingController`).
-     - `shootingMotor`, `angleServo`: Devices for shooting (specific to `ShootingController`).
-   - **Methods**:
-     - `handle(event: Event)`: Handles the event and controls the devices accordingly.
+    - **Description**: Handle specific events and control corresponding devices.
+    - **Attributes**:
+        - `eventBus`: The event bus for subscribing to events.
+        - `motors`: A list of motors (specific to `MotionController`).
+        - `intakeMotor`: The motor for intake (specific to `BallCollectionController`).
+        - `colorSensor`, `sortingServo`: Devices for sorting (specific to `BallSortingController`).
+        - `shootingMotor`, `angleServo`: Devices for shooting (specific to `ShootingController`).
+    - **Methods**:
+        - `handle(event: Event)`: Handles the event and controls the devices accordingly.
 
 ### System Package
 
 1. **RobotSystem**
-   - **Description**: The main class that integrates all components and runs the robot.
-   - **Attributes**:
-     - `eventBus`: The central event bus.
-     - `inputController`: The input controller.
-     - `controllers`: A list of event handlers (controllers).
-   - **Methods**:
-     - `initialize()`: Initializes the system.
-     - `run()`: Runs the system, typically in a loop, polling inputs and handling events.
+    - **Description**: The main class that integrates all components and runs the robot.
+    - **Attributes**:
+        - `eventBus`: The central event bus.
+        - `inputController`: The input controller.
+        - `controllers`: A list of event handlers (controllers).
+    - **Methods**:
+        - `initialize()`: Initializes the system.
+        - `run()`: Runs the system, typically in a loop, polling inputs and handling events.
 
 ## UML Diagram
 
