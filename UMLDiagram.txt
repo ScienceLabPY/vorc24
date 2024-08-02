@@ -1,0 +1,139 @@
+@startuml
+
+package "Core" {
+    package "Event" {
+        class EventBus {
+            - subscribers: Map<EventType, List<EventHandler>>
+            + subscribe(eventType: EventType, handler: EventHandler)
+            + publish(event: Event)
+        }
+
+        enum EventType {
+            GAMEPAD_INPUT
+            SENSOR_DATA
+            MOTOR_COMMAND
+            ...
+        }
+
+        interface Event {
+            + getType(): EventType
+        }
+
+        interface EventHandler {
+            + handle(event: Event)
+        }
+    }
+
+    package "Communication" {
+        interface CommunicationProtocol {
+            + initialize()
+            + read(address: int, register: int): byte[]
+            + write(address: int, register: int, data: byte[])
+        }
+
+        class I2CProtocol implements CommunicationProtocol
+        class SPIProtocol implements CommunicationProtocol
+        class GPIOProtocol implements CommunicationProtocol
+    }
+}
+
+package "Devices" {
+    package "Input" {
+        interface InputDevice {
+            + read(): InputData
+        }
+
+        class Gamepad implements InputDevice {
+            + read(): GamepadData
+        }
+
+        class ColorSensor implements InputDevice {
+            - protocol: CommunicationProtocol
+            + read(): ColorData
+        }
+
+        class LimitSwitch implements InputDevice {
+            - protocol: CommunicationProtocol
+            + read(): boolean
+        }
+    }
+
+    package "Output" {
+        interface OutputDevice {
+            + write(command: OutputCommand)
+        }
+
+        class Motor implements OutputDevice {
+            - protocol: CommunicationProtocol
+            + write(command: MotorCommand)
+        }
+
+        class Servo implements OutputDevice {
+            - protocol: CommunicationProtocol
+            + write(command: ServoCommand)
+        }
+    }
+}
+
+package "Controllers" {
+    class InputController {
+        - eventBus: EventBus
+        - inputDevices: List<InputDevice>
+        + pollInputs()
+    }
+
+    class MotionController implements EventHandler {
+        - eventBus: EventBus
+        - motors: List<Motor>
+        + handle(event: Event)
+    }
+
+    class BallCollectionController implements EventHandler {
+        - eventBus: EventBus
+        - intakeMotor: Motor
+        + handle(event: Event)
+    }
+
+    class BallSortingController implements EventHandler {
+        - eventBus: EventBus
+        - colorSensor: ColorSensor
+        - sortingServo: Servo
+        + handle(event: Event)
+    }
+
+    class ShootingController implements EventHandler {
+        - eventBus: EventBus
+        - shootingMotor: Motor
+        - angleServo: Servo
+        + handle(event: Event)
+    }
+}
+
+package "System" {
+    class RobotSystem {
+        - eventBus: EventBus
+        - inputController: InputController
+        - controllers: List<EventHandler>
+        + initialize()
+        + run()
+    }
+}
+
+RobotSystem --> EventBus
+RobotSystem --> InputController
+RobotSystem --> "1..*" EventHandler
+
+InputController --> EventBus
+InputController --> "1..*" InputDevice
+
+MotionController --> "2..*" Motor
+BallCollectionController --> Motor
+BallSortingController --> ColorSensor
+BallSortingController --> Servo
+ShootingController --> Motor
+ShootingController --> Servo
+
+InputDevice ..> CommunicationProtocol
+OutputDevice ..> CommunicationProtocol
+
+@enduml
