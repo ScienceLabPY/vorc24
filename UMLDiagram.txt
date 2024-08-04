@@ -15,12 +15,8 @@ package "Core" {
             ...
         }
 
-        interface Event {
-            + getType(): EventType
-        }
-
         interface EventHandler {
-            + handle(event: Event)
+            + handle(event: EventType)
         }
     }
 
@@ -85,27 +81,27 @@ package "Controllers" {
     class MotionController implements EventHandler {
         - eventBus: EventBus
         - motors: List<Motor>
-        + handle(event: Event)
+        + handle(event: EventType)
     }
 
     class BallCollectionController implements EventHandler {
         - eventBus: EventBus
         - intakeMotor: Motor
-        + handle(event: Event)
+        + handle(event: EventType)
     }
 
     class BallSortingController implements EventHandler {
         - eventBus: EventBus
         - colorSensor: ColorSensor
         - sortingServo: Servo
-        + handle(event: Event)
+        + handle(event: EventType)
     }
 
     class ShootingController implements EventHandler {
         - eventBus: EventBus
         - shootingMotor: Motor
         - angleServo: Servo
-        + handle(event: Event)
+        + handle(event: EventType)
     }
 }
 

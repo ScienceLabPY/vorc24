@@ -73,10 +73,6 @@ classDiagram
         SENSOR_DATA
         MOTOR_COMMAND
     }
-    class Event {
-        <<interface>>
-        +getType() EventType
-    }
     class EventHandler {
         <<interface>>
         +handle(event: Event)
@@ -129,24 +125,24 @@ classDiagram
     class MotionController {
         -eventBus: EventBus
         -motors: List<Motor>
-        +handle(event: Event)
+        +handle(event: EventType)
     }
     class BallCollectionController {
         -eventBus: EventBus
         -intakeMotor: Motor
-        +handle(event: Event)
+        +handle(event: EventType)
     }
     class BallSortingController {
         -eventBus: EventBus
         -colorSensor: ColorSensor
         -sortingServo: Servo
-        +handle(event: Event)
+        +handle(event: EventType)
     }
     class ShootingController {
         -eventBus: EventBus
         -shootingMotor: Motor
         -angleServo: Servo
-        +handle(event: Event)
+        +handle(event: EventType)
     }
 
     %% System
@@ -204,13 +200,7 @@ classDiagram
     - **Description**: Enum defining different types of events.
     - **Values**: `GAMEPAD_INPUT`, `SENSOR_DATA`, `MOTOR_COMMAND`, etc.
 
-3. **Event**
-
-    - **Description**: Interface representing an event.
-    - **Methods**:
-        - `getType(): EventType`: Returns the type of the event.
-
-4. **EventHandler**
+3. **EventHandler**
     - **Description**: Interface for handling events.
     - **Methods**:
         - `handle(event: Event)`: Handles the event.
@@ -280,7 +270,7 @@ classDiagram
         - `colorSensor`, `sortingServo`: Devices for sorting (specific to `BallSortingController`).
         - `shootingMotor`, `angleServo`: Devices for shooting (specific to `ShootingController`).
     - **Methods**:
-        - `handle(event: Event)`: Handles the event and controls the devices accordingly.
+        - `handle(event: EventType)`: Handles the event and controls the devices accordingly.
 
 ### System Package
 
