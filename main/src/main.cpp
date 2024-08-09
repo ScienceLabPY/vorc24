@@ -1,7 +1,9 @@
-extern "C" {
-    void app_main(void);
+#include <Arduino.h>
+
+void setup() {
+
 }
 
-void app_main(void) {
+void loop() {
 
 }
