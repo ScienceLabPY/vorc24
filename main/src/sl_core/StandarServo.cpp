@@ -1,13 +1,10 @@
-#include "include/device/output/RCServo/StandarServo.hpp"
-#include <Wire.h>
-#include <Adafruit_PWMServoDriver.h>
+#include "include\device\output\RCServo\StandarServo.hpp"
+
 using namespace sl_core;
 
 #define RCSERVO_ANGLE_RANGE 0, 180
 
-#ifndef PWM_RESOLUTION_RANGE
 #define PWM_RESOLUTION_RANGE 0, 4095
-#endif
 
 StandardServo::StandardServo(int pwmPin) {
     pinMode(pwmPin,OUTPUT);
@@ -16,7 +13,7 @@ StandardServo::StandardServo(int pwmPin) {
 
 StandardServo::~StandardServo() {
     stop();
-    ledcDetachPin(pwmPin);
+    ledcDetachPin(this->pwmPin);
 }
 
 void StandardServo::setAngle(int angle) {

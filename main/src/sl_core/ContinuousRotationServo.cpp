@@ -9,6 +9,7 @@ using namespace sl_core;
 ContinuousRotationServo::ContinuousRotationServo(int pwmPin) {
     pinMode(pwmPin,OUTPUT);
     this->pwmPin = pwmPin;
+    pwmCRS.setPWMFreq(SERVO_FREQ);
 }
 
 ContinuousRotationServo::~ContinuousRotationServo {
@@ -19,5 +20,5 @@ ContinuousRotationServo::~ContinuousRotationServo {
 void ContinuousRotationServo::setSpeed(float Speed) {
     speed = constrain(speed, -1.0, 1.0);
     int value = map(speed*1000,-1000, 1000, SERVO_MIN, SERVO_MAX);
-    pwm.setPWM(this->pwmPin,0,value);
+    pwmCRS.setPWM(this->pwmPin,0,value);
 }
