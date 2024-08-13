@@ -20,4 +20,4 @@ namespace sl_core
     };
 }
 
-#endif // BALL_COLLECTOR_CONTROLLER_HPP
+#endif // SHOOTING_CONTROLLER_HPP
