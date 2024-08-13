@@ -1,4 +1,4 @@
-#include "include\device\output\RCServo\StandarServo.hpp"
+#include "include\device\output\RCServo\StandardServo.hpp"
 
 using namespace sl_core;
 
