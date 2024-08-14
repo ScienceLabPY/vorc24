@@ -11,10 +11,10 @@ namespace sl_core
         float rightStickY;
         float leftTrigger;
         float rightTrigger;
-        bool buttonA;
-        bool buttonB;
-        bool buttonX;
-        bool buttonY;
+        bool buttonTriangle;
+        bool buttonCircle;
+        bool buttonCross;
+        bool buttonSquare;
         bool leftBumper;
         bool rightBumper;
         bool leftStickClick;
@@ -24,8 +24,8 @@ namespace sl_core
         bool dPadLeft;
         bool dPadRight;
         bool start;
-        bool back;
-        bool guide;
+        bool select;
+        bool mode;
     };
 }
 
