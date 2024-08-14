@@ -12,140 +12,127 @@ The system is composed of several packages, each responsible for a different asp
 4. **System**: Integrates all components and runs the robot.
 
 ```plaintext
-│   README.md
-│   UMLDiagram.txt
-│
-└───pseudo
-    │   main.py
-    │
-    ├───controller
-    │       ball_collection.py
-    │       ball_shooting.py
-    │       ball_sorting.py
-    │       input_controller.py
-    │       motion_controller.py
-    │       __init__.py
-    │
-    ├───core
-    │   ├───com
-    │   │       com_protocol.py
-    │   │       gpio.py
-    │   │       i2c.py
-    │   │       spi.py
-    │   │       __init__.py
-    │   │
-    │   └───event
-    │           bus.py
-    │           event.py
-    │           event_t.py
-    │           __init__.py
-    │
-    └───devices
-        │   __init__.py
-        │
-        ├───input
-        │       color_sensor.py
-        │       gamepad.py
-        │       input_device.py
-        │       limit_sw.py
-        │       __init__.py
-        │
-        └───output
-                motor.py
-                output_device.py
-                servo.py
-                __init__.py
+└───main
+    ├───.pio
+    │   └───build
+    │       └───upesy_wrover
+    ├───.vscode
+    ├───include
+    │   ├───controller
+    │   ├───core
+    │   │   └───event
+    │   └───device
+    │       ├───input
+    │       │   ├───gamepad
+    │       │   └───LimitSwitch
+    │       └───output
+    │           └───RCMotor
+    ├───lib
+    ├───src
+    │   └───sl_core
+    │       └───com
+    └───test
 ```
 
 ## Detailed Design
 
 ```mermaid
 classDiagram
-    %% Core
     class EventBus {
         -subscribers: Map<EventType, List<EventHandler>>
         +subscribe(eventType: EventType, handler: EventHandler)
         +publish(event: Event)
     }
+
     class EventType {
         <<enumeration>>
         GAMEPAD_INPUT
         SENSOR_DATA
         MOTOR_COMMAND
     }
+
     class EventHandler {
         <<interface>>
-        +handle(event: Event)
+        +handle(event: EventType)
     }
-    class CommunicationProtocol {
-        <<interface>>
-        +initialize()
-        +read(address: int, register: int) byte[]
-        +write(address: int, register: int, data: byte[])
-    }
-    class I2CProtocol
-    class SPIProtocol
-    class GPIOProtocol
 
-    %% Devices
     class InputDevice {
         <<interface>>
-        +read() InputData
+        +read(): InputData
     }
+
     class Gamepad {
-        +read() GamepadData
+        +read(): GamepadData
     }
+
     class ColorSensor {
         -protocol: CommunicationProtocol
-        +read() ColorData
+        +read(): ColorData
     }
+
     class LimitSwitch {
         -protocol: CommunicationProtocol
-        +read() boolean
+        +read(): boolean
     }
+
     class OutputDevice {
         <<interface>>
         +write(command: OutputCommand)
     }
-    class Motor {
+
+    class HDMotor {
         -protocol: CommunicationProtocol
         +write(command: MotorCommand)
     }
-    class Servo {
+
+    class StandardServo {
         -protocol: CommunicationProtocol
         +write(command: ServoCommand)
     }
 
-    %% Controllers
+    class ContinuousRotationServo {
+        -protocol: CommunicationProtocol
+        +write(command: ServoCommand)
+    }
+
     class InputController {
         -eventBus: EventBus
         -inputDevices: List<InputDevice>
         +pollInputs()
     }
-    class MotionController {
+
+    class DrivetrainController {
         -eventBus: EventBus
-        -motors: List<Motor>
-        +handle(event: EventType)
-    }
-    class BallCollectionController {
-        -eventBus: EventBus
-        -intakeMotor: Motor
-        +handle(event: EventType)
-    }
-    class BallSortingController {
-        -eventBus: EventBus
-        -colorSensor: ColorSensor
-        -sortingServo: Servo
-        +handle(event: EventType)
-    }
-    class ShootingController {
-        -eventBus: EventBus
-        -shootingMotor: Motor
-        -angleServo: Servo
+        -motors: List<HDMotor>
         +handle(event: EventType)
     }
 
-    %% System
+    class BallCollectorController {
+        -eventBus: EventBus
+        -intakeMotor: HDMotor
+        +handle(event: EventType)
+    }
+
+    class BallSortingController {
+        -eventBus: EventBus
+        -colorSensor: ColorSensor
+        -sortingServo: StandardServo
+        +handle(event: EventType)
+    }
+
+    class ShootingController {
+        -eventBus: EventBus
+        -shootingMotor: HDMotor
+        -angleServo: StandardServo
+        +handle(event: EventType)
+    }
+
+    class WhiteBallDoorController {
+        -eventBus: EventBus
+        -doorServo: StandardServo
+        +handle(event: EventType)
+    }
+
     class RobotSystem {
         -eventBus: EventBus
         -inputController: InputController
@@ -154,32 +141,30 @@ classDiagram
         +run()
     }
 
-    %% Relationships
-    CommunicationProtocol <|-- I2CProtocol
-    CommunicationProtocol <|-- SPIProtocol
-    CommunicationProtocol <|-- GPIOProtocol
     InputDevice <|-- Gamepad
     InputDevice <|-- ColorSensor
     InputDevice <|-- LimitSwitch
-    OutputDevice <|-- Motor
-    OutputDevice <|-- Servo
-    EventHandler <|-- MotionController
-    EventHandler <|-- BallCollectionController
+    OutputDevice <|-- HDMotor
+    OutputDevice <|-- StandardServo
+    OutputDevice <|-- ContinuousRotationServo
+    EventHandler <|-- DrivetrainController
+    EventHandler <|-- BallCollectorController
     EventHandler <|-- BallSortingController
     EventHandler <|-- ShootingController
+    EventHandler <|-- WhiteBallDoorController
+
     RobotSystem --> EventBus
     RobotSystem --> InputController
-    RobotSystem --> "*" EventHandler
+    RobotSystem --> "1..*" EventHandler
     InputController --> EventBus
-    InputController --> "*" InputDevice
-    MotionController --> "*" Motor
-    BallCollectionController --> Motor
+    InputController --> "1..*" InputDevice
+    DrivetrainController --> "2..*" HDMotor
+    BallCollectorController --> HDMotor
     BallSortingController --> ColorSensor
-    BallSortingController --> Servo
-    ShootingController --> Motor
-    ShootingController --> Servo
-    InputDevice ..> CommunicationProtocol
-    OutputDevice ..> CommunicationProtocol
+    BallSortingController --> StandardServo
+    ShootingController --> HDMotor
+    ShootingController --> StandardServo
+    WhiteBallDoorController --> StandardServo
 ```
 
 ### Core Package
