@@ -16,6 +16,8 @@ namespace sl_core
         void onEvent(GamepadData data) override;
     private:
         // implement motor control here
+        HDMotor leftMotor;
+        HDMotor rightMotor;
         // Motor* leftMotor;
         // Motor* rightMotor;
     };
