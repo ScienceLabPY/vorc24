@@ -2,9 +2,9 @@
 #define DRIVE_TRAIN_CONTROLLER_HPP
 
 #include "BaseController.hpp"
-#include "core/event/EventTypes.hpp"
-#include "device/input/gamepad/GamepadData.hpp"
-#include "device/output/HDMotor.hpp"
+#include <core/event/EventBus.hpp>
+#include <device/input/gamepad/Gamepad.hpp>
+#include <device/output/HDMotor.hpp>
 
 namespace sl_core
 {

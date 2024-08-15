@@ -2,7 +2,7 @@
 
 #define STANDARD_SERVO_HPP
 
-#include <Arduino>
+#include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 
