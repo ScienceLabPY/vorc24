@@ -11,13 +11,19 @@ ColorSensor::~ColorSenSor() {
 
 };
 
-void ColorSensor::update() {
+InputType ColorSensor::getType() const {
+    return InputType::COLOR_SENSOR;
+}
+
+InputData ColorSensor::read() {
     uint16_t r, g, b, c;
     this->tcs.getRawData(&r, &g, &b, &c);
-    this->R = r;
-    this->G = g;
-    this->B = b;
-    this->C = c;
+    InputData data;
+    data.colorSensorData.R = r;
+    data.colorSensorData.G = g;
+    data.colorSensorData.B = b;
+    data.colorSensorData.C = c;
+    return data;
 }
 
 bool ColorSensor::isWhite() {

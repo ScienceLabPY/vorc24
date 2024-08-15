@@ -11,6 +11,9 @@ Gamepad::~Gamepad()
 
 void Gamepad::update()
 {
+    this->data->leftStickY = ps2x.Analog(PSS_LY);
+    this->data->rightStickY = ps2x.Analog(PSS_RY);
+    this->data->start = ps2x.
 }
 
 InputType Gamepad::getType()

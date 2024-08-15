@@ -3,6 +3,10 @@
 
 #include <Arduino.h>
 
+#define ENCODER_COUNTS_PER_REV 1440
+#define PWM_MAX 4095
+#define PWM_MIN 0
+
 namespace sl_core
 {
     class HDMotor
