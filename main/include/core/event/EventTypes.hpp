@@ -3,11 +3,17 @@
 
 namespace sl_core
 {
-    enum class EventType
-    {
-        GAMEPAD_INPUT,
-        SENSOR_DATA,
-        // Add more event types here
+    enum class EventType {
+        GAMEPAD_EVENT,
+        COLOR_SENSOR_EVENT,
+        LIMIT_SWITCH_EVENT,
+        // Add other event types as needed
+    };
+
+    struct Event {
+        EventType type;
+        void *data;
+        // Add any additional data fields needed for events
     };
 }
 

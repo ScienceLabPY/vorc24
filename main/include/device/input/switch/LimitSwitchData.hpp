@@ -6,7 +6,7 @@ namespace sl_core
 {
     struct LimitSwitchData
     {
-       bool LimitSwitchState;
+       bool isPressed;
     };
 }
 

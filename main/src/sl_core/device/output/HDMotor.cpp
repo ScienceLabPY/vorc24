@@ -1,4 +1,4 @@
-#include "include/device/output/HDMotor.hpp"
+#include <device/output/HDMotor.hpp>
 using namespace sl_core;
 
 HDMotor::HDMotor(int pwmPin, int dirPin, int encA, int encB, int channel, bool reversed)
