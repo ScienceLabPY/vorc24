@@ -25,4 +25,6 @@
 #define MOTOR4_PIN_DIR 29
 #define MOTOR4_CHANNEL 3
 
+#define LIMIT_SWITCH_PIN 30
+
 #endif // HARDWARE_HPP

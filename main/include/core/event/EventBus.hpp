@@ -20,8 +20,8 @@ namespace sl_core
         void unsubscribe(EventType type, EventHandler handler);
         void publish(const Event &event);
     private:
-        EventBus() {}                                   // Private constructor to prevent instantiation
-        ~EventBus() {}                                  // Private destructor to prevent deletion
+        EventBus();                                     // Private constructor to prevent instantiation
+        ~EventBus();                                    // Private destructor to prevent deletion
         EventBus(const EventBus &) = delete;            // Delete copy constructor
         EventBus &operator=(const EventBus &) = delete; // Delete assignment operator
         std::map<EventType, std::vector<EventHandler>> subscribers;

@@ -9,12 +9,6 @@ using namespace sl_core;
 #define INPUT_TASK_PRIORITY 2
 
 template<typename EventType>
-struct InputEvent {
-    InputType type;
-    InputData data;
-};
-
-template<typename EventType>
 InputMapper<EventType>::InputMapper() : eventBus(nullptr), eventMapper(nullptr) {
     mutex = xSemaphoreCreateMutex();
     inputQueue = xQueueCreate(INPUT_QUEUE_SIZE, sizeof(InputEvent<EventType>));
@@ -79,11 +73,9 @@ void InputMapper<EventType>::inputProcessingTask(void* pvParameters) {
     InputEvent<EventType> event;
 
     for (;;) {
-        if (xQueueReceive(mapper->inputQueue, &event, portMAX_DELAY) == pdTRUE) {
-            if (mapper->eventMapper) {
-                EventType mappedEvent = mapper->eventMapper(event.type, event.data);
-                mapper->eventBus->publish(mappedEvent);
-            }
-        }
+        if (xQueueReceive(mapper->inputQueue, &event, portMAX_DELAY) != pdTRUE) continue;
+        if (!mapper->eventMapper) continue;
+        EventType mappedEvent = mapper->eventMapper(event.type, event.data);
+        mapper->eventBus->publish(mappedEvent);
     }
 }
