@@ -32,7 +32,7 @@ void DrivetrainController::initialize()
 
 void DrivetrainController::handleEvent(const Event &event)
 {
-    GamepadData *gamepadData = (GamepadData *)event.data;
+    const GamepadData &gamepadData = *static_cast<GamepadData *>(event.data);
     // implement drivetrain control based on gamepad input
     // e.g. leftMotor->setSpeed(gamepadData->leftStickY);
 }

@@ -4,10 +4,11 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "ColorSensorData.hpp"
 #include <Adafruit_TCS34725.h>
+#include "../IDeviceInput.hpp"
+#include "ColorSensorData.hpp"
 
-class ColorSensor
+class ColorSensor : public IDeviceInput
 {
 private:
     Adafruit_TCS34725 tcs;
@@ -17,7 +18,7 @@ public:
     InputType getType() const override;
     InputData read() override;
 
-    bool isWhite();
-}
+    bool isWhite(ColorSensorData data);
+};
 
 #endif // COLOR_SENSOR_HPP

@@ -17,18 +17,19 @@ namespace sl_core
         // Add other input types as needed
     };
 
-    struct InputData
+    union InputData
     {
-        // This is a generic structure to hold various input data types
-        union
-        {
-            GamepadData gamepadData;
-            LimitSwitchData limitSwitchData;
-            ColorSensorData colorSensorData;
-            // Add other input data structures as needed
-        };
+        GamepadData gamepadData;
+        LimitSwitchData limitSwitchData;
+        ColorSensorData colorSensorData;
+        // Add other input data structures as needed
     };
 
+    template<typename EventType>
+    struct InputEvent {
+        InputType type;
+        InputData data;
+    };
 } // namespace sl_core
 
 #endif // INPUT_TYPES_HPP
