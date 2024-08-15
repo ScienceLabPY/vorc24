@@ -1,20 +1,23 @@
 #ifndef BALL_SORTING_CONTROLLER_HPP
 #define BALL_SORTING_CONTROLLER_HPP
 
-#include "core/event/IEventListener.hpp"
-#include "core/event/EventTypes.hpp"
-#include "device/input/LimitSwitch/LimitSwitchData.hpp"
+
+#include <BaseController.hpp>
+#include <device/output/RCMotor/ContinuousRotationServo.hpp>
+#include <device/input/switch/LimitSwitch.hpp>
 
 namespace sl_core
 {
-    class BallSortingController : public IEventListener<LimitSwitchData>
+    class BallSortingController : public BaseController
     {
     public:
         BallSortingController();
-        ~BallSortingController();
-
-        void onEvent(LimitSwitchData data) override;
+        void initialize() override;
+        void handleEvent(Event *event) override;
     private:
+        void _run() override;
+
+        const TIME_TO_SET_ANGLE = 500;
         ColorSensor colorSensor;
         ContinuousRotationServo sortingServo;
     };
