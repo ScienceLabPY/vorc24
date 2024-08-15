@@ -10,13 +10,10 @@ namespace sl_core
     {
     public:
         Gamepad();
-        ~Gamepad();
+        InputType getType() const override;
+        InputData read() override;
 
-        void update() override;
-        InputType getType() override;
-        GamepadData getData();
     private:
-        GamepadData data;
     };
 }
 

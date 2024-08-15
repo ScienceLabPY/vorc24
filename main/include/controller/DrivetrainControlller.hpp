@@ -1,25 +1,26 @@
 #ifndef DRIVE_TRAIN_CONTROLLER_HPP
 #define DRIVE_TRAIN_CONTROLLER_HPP
 
-#include "core/event/IEventListener.hpp"
+#include "BaseController.hpp"
 #include "core/event/EventTypes.hpp"
 #include "device/input/gamepad/GamepadData.hpp"
+#include "device/output/HDMotor.hpp"
 
 namespace sl_core
 {
-    class DrivetrainController : public IEventListener<GamepadData>
+    class DrivetrainController : public BaseController
     {
     public:
-        DrivetrainController();
-        ~DrivetrainController();
+        DrivetrainController(EventBus *eventBus);
+        void initialize() override;
+        void handleEvent(const Event &event) override;
 
-        void onEvent(GamepadData data) override;
     private:
         // implement motor control here
-        HDMotor leftMotor;
-        HDMotor rightMotor;
-        // Motor* leftMotor;
-        // Motor* rightMotor;
+        HDMotor *leftMotor;
+        HDMotor *rightMotor;
+
+        void _run() override;
     };
 }
 

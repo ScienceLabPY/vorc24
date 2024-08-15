@@ -1,5 +1,5 @@
-#ifndef IDEVICE_INPUT_HPP
-#define IDEVICE_INPUT_HPP
+#ifndef I_DEVICE_INPUT_HPP
+#define I_DEVICE_INPUT_HPP
 
 #include "InputTypes.hpp"
 
@@ -8,12 +8,11 @@ namespace sl_core
     class IDeviceInput
     {
     public:
-        IDeviceInput(/* args */) {}
-        virtual ~IDeviceInput() {}
-
-        virtual void update() = 0;
-        virtual InputType getType() = 0;
+        virtual ~IDeviceInput() = default;
+        virtual InputType getType() const = 0;
+        virtual InputData read() = 0;
     };
-}
 
-#endif // IDEVICE_INPUT_HPP
+} // namespace sl_core
+
+#endif // I_DEVICE_INPUT_HPP

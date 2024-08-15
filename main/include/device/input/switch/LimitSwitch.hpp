@@ -13,12 +13,10 @@ namespace sl_core
         LimitSwitch(int);
         ~LimitSwitch();
 
-        void update() override;
-        InputType getType() override;
-        LimitSwitchData getData();
+        InputType getType() const override;
+        InputData read() override;
     private:
         int switchPin;
-        LimitSwitchData data;
     };
 }
 

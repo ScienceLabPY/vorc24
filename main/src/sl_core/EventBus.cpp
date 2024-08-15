@@ -8,29 +8,49 @@ EventBus &EventBus::getInstance()
     return instance;
 }
 
-void EventBus::addListener(EventType type, IEventListener<void *> *listener)
+EventBus::EventBus()
 {
-    // Add the listener to the list of listeners for the given event type
-    listeners[type].push_back(listener);
+    // Initialize the map of event listeners
+    mutex = xSemaphoreCreateMutex();
 }
 
-void EventBus::removeListener(EventType type, IEventListener<void *> *listener)
+EventBus::~EventBus()
 {
-    // Remove the listener from the list of listeners for the given event type
-    auto &listenerList = listeners[type];
-    listenerList.erase(
-        std::remove(
-            listenerList.begin(),
-            listenerList.end(),
-            listener),
-        listenerList.end());
+    // Delete the mutex
+    vSemaphoreDelete(mutex);
 }
 
-void EventBus::dispatch(EventType type, void *data)
+void EventBus::subscribe(EventType type, EventHandler handler)
 {
-    // Dispatch the event to all listeners for the given event type
-    for (auto listener : listeners[type])
+    xSemaphoreTake(mutex, portMAX_DELAY);
+    subscribers[type].push_back(handler);
+    xSemaphoreGive(mutex);
+}
+
+void EventBus::unsubscribe(EventType type, EventHandler handler)
+{
+    xSemaphoreTake(mutex, portMAX_DELAY);
+    auto &handlers = subscribers[type];
+    handlers.erase(std::remove_if(
+        handlers.begin(), handlers.end(),
+        [&handler](const EventHandler &h)
+        {
+            return h.target_type() == handler.target_type();
+        }),
+        handlers.end());
+    xSemaphoreGive(mutex);
+}
+
+void EventBus::publish(const Event &event)
+{
+    xSemaphoreTake(mutex, portMAX_DELAY);
+    auto it = subscribers.find(event.type);
+    if (it != subscribers.end())
     {
-        listener->onEvent(data);
+        for (const auto &handler : it->second)
+        {
+            handler(event);
+        }
     }
+    xSemaphoreGive(mutex);
 }
