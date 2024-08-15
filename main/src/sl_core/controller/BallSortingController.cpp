@@ -22,10 +22,11 @@ void BallSortingController::initialize() {
 
 void BallSortingController::handleEvent(const Event& event)
 {
-    const auto& inputData = dynamic_cast<const InputData&> (event.data);
+    const auto& colorData = static_cast<const ColorSensorData&>(event.data);
     if (inputData.LimitSwitchData.isPress) {
-        if (colorSensor.isWhite()) {
+        if (colorSensor.isWhite(colorData)) {
             sortingServo.setSpeed(1);
+            // temporary delay to set the angle
             delay(TIME_TO_SET_ANGLE);
             sortingServo.setSpeed(0);
         }
