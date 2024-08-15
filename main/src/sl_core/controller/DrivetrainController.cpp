@@ -32,44 +32,33 @@ void DrivetrainController::initialize()
 
 void DrivetrainController::handleEvent(const Event &event)
 {
-    GamepadData *gamepadData = (GamepadData *)event.data;
-    // implement drivetrain control based on gamepad input
-    // e.g. leftMotor->setSpeed(gamepadData->leftStickY);
+    const GamepadData &gamepadData = *static_cast<GamepadData *>(event.data);
+    // Implement arcade drive based on gamepad input
+    float throttle = gamepadData.leftStickY;
+    float turn = gamepadData.rightStickX;
 
-    double x = -gamepadData->rightStickX;
-    double y = -gamepadData->leftStickY;
-    double hypotenuse = std::sqrt(x * x + y * y);
-    double angleRadians = std::acos(std::abs(x) / hypotenuse);
-    double angleDegrees = angleRadians * 180 / M_PI;
-    double turnCoefficient = -1 + (angleDegrees / 90) * 2;
-    double turnValue = turnCoefficient * std::abs(std::abs(y) - std::abs(x));
-    turnValue = std::round(turnValue * 100.0) / 100.0;  // Làm tròn đến hai chữ số thập phân
-    double movementValue = std::max(std::abs(y), std::abs(x));
-    double rawLeft, rawRight;
-        
-    if ((x >= 0 && y >= 0) || (x < 0 && y < 0)) {
-        rawLeft = movementValue;
-        rawRight = turnValue;
-    } else {
-        rawRight = movementValue;
-        rawLeft = turnValue;
+    // Calculate motor speeds using arcade drive algorithm
+    float leftSpeed = throttle + turn;
+    float rightSpeed = throttle - turn;
+
+    // Normalize speeds if they exceed -1.0 to 1.0 range
+    float maxSpeed = std::max(std::abs(leftSpeed), std::abs(rightSpeed));
+    if (maxSpeed > 1.0f)
+    {
+        leftSpeed /= maxSpeed;
+        rightSpeed /= maxSpeed;
     }
-    
-    if (y < 0) {
-        rawLeft = -rawLeft;
-        rawRight = -rawRight;
-    }
-    
-    double rightOut = map(rawRight, minJoystick, maxJoystick, minSpeed, maxSpeed);
-    double leftOut = map(rawLeft, minJoystick, maxJoystick, minSpeed, maxSpeed);
-    
-    leftMotor->setSpeed(leftOut);
-    rightMotor->setSpeed(rightOut);
+
+    // Set motor speeds
+    leftMotor->setSpeed(leftSpeed);
+    rightMotor->setSpeed(rightSpeed);
 }
 
-void DrivetrainController::_run() {
-    while (true) {
-        // Perform any continuous drivetrain operations
+void DrivetrainController::_run()
+{
+    // example of a continuous drivetrain operation
+    while (true)
+    {
         vTaskDelay(pdMS_TO_TICKS(10)); // 100Hz update rate
     }
 }

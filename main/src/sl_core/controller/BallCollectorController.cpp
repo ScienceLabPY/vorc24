@@ -22,19 +22,20 @@ void BallCollectorController::initialize()
 
 void BallCollectorController::handleEvent(const Event &event)
 {
-    const auto& inputData = dynamic_cast<const InputData&>(event.data);
+    const GamepadData &inputData = *static_cast<GamepadData *>(event.data);
     // Process gamepad input and control intake motor
-    if (inputData.gamepadData.buttonA)
+    // e.g. m_intakeMotor.setSpeed(inputData.leftStickY);
+    if (inputData.buttonA)
     {
-        m_intakeMotor.setSpeed(1.0); // Start intake
+        m_intakeMotor.setSpeed(100);
     }
-    else if (inputData.gamepadData.buttonB)
+    else if (inputData.buttonB)
     {
-        m_intakeMotor.setSpeed(-1.0); // Reverse intake
+        m_intakeMotor.setSpeed(-100);
     }
     else
     {
-        m_intakeMotor.setSpeed(0.0); // Stop intake
+        m_intakeMotor.setSpeed(0);
     }
 }
 

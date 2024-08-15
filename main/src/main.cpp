@@ -1,8 +1,9 @@
-#include <Arduino.h>
 #include <memory>
+#include <Arduino.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <core/event/EventBus.hpp>
+#include <core/hardware.hpp>
 #include <device/input/InputMapper.hpp>
 #include <controller/DrivetrainControlller.hpp>
 #include <controller/BallCollectorController.hpp>
@@ -15,6 +16,10 @@
 #include <device/input/switch/LimitSwitch.hpp>
 
 using namespace sl_core;
+
+// Input Mapper
+auto &inputMapper = InputMapper<Event>::getInstance();
+
 // Controllers
 EventBus *eventBus = &EventBus::getInstance();
 DrivetrainController drivetrainController(eventBus);
@@ -26,30 +31,31 @@ WhiteBallDoorController whiteBallDoorController(eventBus);
 void setup_input()
 {
     // Setup input
-    auto &inputMapper = InputMapper<Event>::getInstance();
     inputMapper.initialize(eventBus);
     inputMapper.setEventMapper([](InputType type, const InputData &data) -> Event
                                {
         Event event;
-        event.data = static_cast<void*>(const_cast<InputData*>(&data));
         switch (type) {
             case InputType::GAMEPAD:
                 event.type = EventType::GAMEPAD_EVENT;
+                event.data = const_cast<GamepadData *>(&data.gamepadData);
                 break;
             case InputType::COLOR_SENSOR:
                 event.type = EventType::COLOR_SENSOR_EVENT;
+                event.data = const_cast<ColorSensorData *>(&data.colorSensorData);
                 break;
             // Handle other input types
         }
         return event; });
 
-    auto gamepad = std::make_unique<Gamepad>();
-    auto colorSensor = std::make_unique<ColorSensor>();
-    auto limitSwitch = std::make_unique<LimitSwitch>();
+    std::unique_ptr<Gamepad> gamepad(new Gamepad());
+    std::unique_ptr<ColorSensor> colorSensor(new ColorSensor());
+    std::unique_ptr<LimitSwitch> limitSwitch(new LimitSwitch(LIMIT_SWITCH_PIN));
 
     inputMapper.addInputDevice(gamepad.get());
     inputMapper.addInputDevice(colorSensor.get());
-    inputMapper.addInputDevice(limitSwitch.get());
+    // Interrupt mode
+    inputMapper.addInputDevice(limitSwitch.get(), (gpio_num_t)LIMIT_SWITCH_PIN);
 }
 
 void setup()
@@ -76,6 +82,7 @@ void setup()
 void loop()
 {
     // Main loop can be empty or handle any system-wide tasks
+
     // Just for example
     // poll input devices every 1 second
     while (true)

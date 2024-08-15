@@ -25,7 +25,10 @@
 #define MOTOR4_PIN_DIR 29
 #define MOTOR4_CHANNEL 3
 
+#define LIMIT_SWITCH_PIN 30
+
 #define SERVO1_PINPWM 4
 #define SERVO2_PINPWM 5
 #define SERVO3_PINPWM 6
+
 #endif // HARDWARE_HPP

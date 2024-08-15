@@ -1,14 +1,11 @@
-#include <device/input/ColorSensor.hpp>
+#include <device/input/color/ColorSensor.hpp>
+
 using namespace sl_core;
 
 #define WHITE_LIMIT 1534
 
 ColorSensor::ColorSensor(){
     this->tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
-};
-
-ColorSensor::~ColorSenSor() {
-
 };
 
 InputType ColorSensor::getType() const {
@@ -26,8 +23,7 @@ InputData ColorSensor::read() {
     return data;
 }
 
-bool ColorSensor::isWhite() {
-    this.update();
-    return this->R + this->G + this->B >= WHITE_LIMIT;
+bool ColorSensor::isWhite(ColorSensorData data) {
+    return (data.R + data.G + data.B) > WHITE_LIMIT;
     // READ THE EXPLANATION IN THE PROGRAMMING DOCUMENT.
 }
