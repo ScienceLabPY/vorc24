@@ -44,6 +44,10 @@ void setup_input()
                 event.type = EventType::COLOR_SENSOR_EVENT;
                 event.data = const_cast<ColorSensorData *>(&data.colorSensorData);
                 break;
+            case InputType::LIMIT_SWITCH:
+                event.type = EventType::LIMIT_SWITCH_EVENT;
+                event.data = const_cast<LimitSwitchData *>(&data.limitSwitchData);
+                break;
             // Handle other input types
         }
         return event; });
@@ -89,6 +93,7 @@ void loop()
     {
         inputMapper.update(InputType::GAMEPAD);
         inputMapper.update(InputType::COLOR_SENSOR);
+        inputMapper.update(InputType::LIMIT_SWITCH);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
