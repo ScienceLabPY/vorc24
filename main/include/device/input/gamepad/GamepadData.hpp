@@ -11,10 +11,10 @@ namespace sl_core
         float rightStickY;
         float leftTrigger;
         float rightTrigger;
-        bool buttonTriangle;
-        bool buttonCircle;
-        bool buttonCross;
-        bool buttonSquare;
+        bool buttonA;
+        bool buttonB;
+        bool buttonX;
+        bool buttonY;
         bool leftBumper;
         bool rightBumper;
         bool leftStickClick;
