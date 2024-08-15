@@ -1,9 +1,8 @@
-#include "include\device\output\RCServo\StandardServo.hpp"
+#include <device/output/StandardServo.hpp>
 
 using namespace sl_core;
 
 #define RCSERVO_ANGLE_RANGE 0, 180
-
 #define PWM_RESOLUTION_RANGE 0, 4095
 
 StandardServo::StandardServo(int pwmPin) {
