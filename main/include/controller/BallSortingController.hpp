@@ -1,9 +1,8 @@
 #ifndef BALL_SORTING_CONTROLLER_HPP
 #define BALL_SORTING_CONTROLLER_HPP
 
-
-#include <BaseController.hpp>
-#include <device/output/RCMotor/ContinuousRotationServo.hpp>
+#include "BaseController.hpp"
+#include <device/output/Servo/ContinuousRotationServo.hpp>
 #include <device/input/switch/LimitSwitch.hpp>
 
 namespace sl_core

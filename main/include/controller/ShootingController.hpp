@@ -1,9 +1,9 @@
 #ifndef SHOOTING_CONTROLLER_HPP
 #define SHOOTING_CONTROLLER_HPP
 
-#include "Basecontroller.hpp"
-#include "device/output/HDMotor.hpp"
-#include "device/output/RCMotor/ContinuousRotationServo.hpp"
+#include "BaseController.hpp"
+#include <device/output/HDMotor.hpp>
+#include <device/output/Servo/ContinuousRotationServo.hpp>
 
 namespace sl_core
 {

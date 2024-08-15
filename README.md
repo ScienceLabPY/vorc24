@@ -34,7 +34,82 @@ The system is composed of several packages, each responsible for a different asp
     └───test
 ```
 
-## Detailed Design
+## System Design
+
+```mermaid
+graph TD
+    subgraph "Main Application"
+        Main[Main Thread]
+    end
+
+    subgraph "Event Bus"
+        EB[EventBus Singleton]
+        EBM[EventBus Mutex]
+    end
+
+    subgraph "Input Mapper"
+        IM[InputMapper Singleton]
+        IPT[Input Processing Task]
+        IMQ[Input Queue]
+        IMM[InputMapper Mutex]
+        ISR[GPIO ISR]
+    end
+
+    subgraph "Controllers"
+        OC[Controllers]
+        OCT[Controller Tasks]
+    end
+
+    Main --> EB
+    Main --> IM
+    Main --> OC
+
+    EB <--> EBM
+    EB -.-> OC
+
+    IM <--> IMM
+    IM --> IPT
+    ISR --> IMQ
+    IMQ --> IPT
+    IPT --> EB
+
+    OC --> OCT
+    OCT --> EB
+
+    classDef thread fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef mutex fill:#bbf,stroke:#333,stroke-width:2px;
+    classDef queue fill:#bfb,stroke:#333,stroke-width:2px;
+    classDef isr fill:#fbb,stroke:#333,stroke-width:2px;
+
+    class Main,IPT,DCT,OCT thread;
+    class EBM,IMM mutex;
+    class IMQ queue;
+    class ISR isr;
+```
+
+The diagram visualizes the parallelism and key components of the system:
+
+- **Main Application**: The main thread that initializes and starts other components.
+- **Event Bus**: 
+    - A singleton instance with a mutex for thread-safe operations. 
+    - Handles event publishing and subscription.
+- **Input Mapper**: 
+    - A singleton instance with a mutex for thread-safe operations. 
+    - Has a GPIO Interrupt Service Routine (ISR) for immediate input detection.
+    - Uses a queue to pass input events from the ISR to the Input Processing Task.
+    - The Input Processing Task runs continuously, processing inputs and publishing events to the Event Bus.
+- **Controllers**:
+    - Represent additional controllers in the system.
+    - Each has its own task and can subscribe to events from the Event Bus.
+
+The diagram shows how these components interact:
+
+Solid lines represent direct method calls or data flow.
+Dotted lines represent event-based communication through the Event Bus.
+
+This architecture allows for parallel processing of inputs, events, and control logic, while using mutexes and queues to ensure thread-safe operations and efficient inter-task communication.
+
+## Class Design
 
 ```mermaid
 classDiagram
