@@ -33,9 +33,7 @@ void DrivetrainController::initialize()
 void DrivetrainController::handleEvent(const Event &event)
 {
     const GamepadData &gamepadData = *static_cast<GamepadData *>(event.data);
-    // implement drivetrain control based on gamepad input
-
-    // Implement arcade drive
+    // Implement arcade drive based on gamepad input
     float throttle = gamepadData.leftStickY;
     float turn = gamepadData.rightStickX;
 

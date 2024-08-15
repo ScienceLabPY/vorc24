@@ -1,34 +1,45 @@
-#include <core/event/EventBus.hpp>
+#include <core/hardware.hpp>
+#include <device/input/InputTypes.hpp>
 #include <controller/BallSortingController.hpp>
+
 using namespace sl_core;
 
-#define TIME_TO_SET_ANGLE 500
-
 BallSortingController::BallSortingController(): 
-    IEventListener<LimitSwitchData>(EventType::SENSOR_DATA)
+   BaseController(eventBus, "BallSortingDoorController", 4096, 2),
+   sortingServo(SERVO3_PINPWM)
 {
-    this->sortingServo = new Servo();
-    this->colorSensor = new ColorSensor();
+    colorSensor = new ColorSensor();
 }
 
-BallCollectorController::~BallCollectorController()
-{
-    delete this->sortingServo;
-    delete this->colorSensor;
+void BallSortingController::initialize() {
+    eventBus->subscribe(
+        EventType->SENSOR_EVENT,
+        [this](const Event& event) {
+            this->handleEvent(event);
+        }
+    )
 }
 
-void BallCollectorController::onEvent(LimitSwitchData data)
+void BallSortingController::handleEvent(const Event& event)
 {
-    if (data->LimitSwitchState) {
-        if (colorSensor->isWhite()) {
-            servo.setSpeed(1);
+    const auto& inputData = dynamic_cast<const InputData&> (event.data);
+    if (inputData.LimitSwitchData.isPress) {
+        if (colorSensor.isWhite()) {
+            sortingServo.setSpeed(1);
             delay(TIME_TO_SET_ANGLE);
-            servo.setSpeed(0);
+            sortingServo.setSpeed(0);
         }
         else {
-            servo.setSpeed(-1);
+            sortingServo.setSpeed(-1);
             delay(TIME_TO_SET_ANGLE);
-            servo.setSpeed(0);
+            sortingServo.setSpeed(0);
         }
+    }
+}
+
+void BallSortingController::_run() {
+    while (true)
+    {
+        vTaskDelay(psMS_TO_TICKS(20));
     }
 }

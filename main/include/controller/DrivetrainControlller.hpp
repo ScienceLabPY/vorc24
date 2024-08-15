@@ -19,6 +19,11 @@ namespace sl_core
         // implement motor control here
         HDMotor *leftMotor;
         HDMotor *rightMotor;
+        
+        const double minJoystick = -1.0;
+        const double maxJoystick = 1.0;
+        const double minSpeed = -1.0;
+        const double maxSpeed = 1.0;
 
         void _run() override;
     };

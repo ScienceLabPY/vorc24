@@ -24,8 +24,8 @@ namespace sl_core
         bool dPadLeft;
         bool dPadRight;
         bool start;
-        bool back;
-        bool guide;
+        bool select;
+        bool mode;
     };
 }
 

@@ -1,20 +1,21 @@
 #ifndef SHOOTING_CONTROLLER_HPP
 #define SHOOTING_CONTROLLER_HPP
 
-#include "core/event/IEventListener.hpp"
-#include "core/event/EventTypes.hpp"
-#include "device/input/gamepad/GamepadData.hpp"
+#include "Basecontroller.hpp"
+#include "device/output/HDMotor.hpp"
+#include "device/output/RCMotor/ContinuousRotationServo.hpp"
 
 namespace sl_core
 {
-    class ShootingController : public IEventListener<GamepadData>
+    class ShootingController : public BaseController
     {
     public:
-        ShootingController();
-        ~ShootingController();
+        ShootingController(EventBus *eventBus);
+        void initialize() override;
+        void handleEvent(const Event &event) override;
 
-        void onEvent(GamepadData data) override;
     private:
+        void _run() override;
         HDMotor shootingMotor;
         ContinuousRotationServo angleServo;
     };
