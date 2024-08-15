@@ -1,22 +1,20 @@
 #ifndef WHITE_BALL_DOOR_CONTROLLER_HPP
 #define WHITE_BALL_DOOR_CONTROLLER_HPP
 
-#include "core/event/IEventListener.hpp"
-#include "core/event/EventTypes.hpp"
-#include "device/input/gamepad/GamepadData.hpp"
+#include "Basecontroller.hpp"
+#include "device/output/RCMotor/StandardServo.hpp"
 
 namespace sl_core
 {
-    class WhiteBallDoorController : public IEventListener<GamepadData>
+    class WhiteBallDoorController : public BaseController
     {
     public:
-        WhiteBallDoorController();
-        ~WhiteBallDoorController();
-
-        void onEvent(GamepadData data) override;
+        WhiteBallDoorController(EventBus *eventBus);
+        void initialize() override;
+        void handleEvent(Event *event) override;
     private:
+        void _run() override;
         StandardServo doorServo;
-        bool state;
     };
 }
 
