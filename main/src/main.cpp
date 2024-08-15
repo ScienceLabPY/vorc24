@@ -48,7 +48,8 @@ void setup_input()
 
     inputMapper.addInputDevice(gamepad.get());
     inputMapper.addInputDevice(colorSensor.get());
-    inputMapper.addInputDevice(limitSwitch.get());
+    // Interrupt mode
+    inputMapper.addInputDevice(limitSwitch.get(), (gpio_num_t)LIMIT_SWITCH_PIN);
 }
 
 void setup()
@@ -69,7 +70,7 @@ void setup()
 void loop()
 {
     // Main loop can be empty or handle any system-wide tasks
-    
+
     // Just for example
     // poll input devices every 1 second
     while (true)
