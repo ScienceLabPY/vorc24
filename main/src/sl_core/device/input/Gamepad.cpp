@@ -27,10 +27,10 @@ InputData Gamepad::read() {
     data.gamepadData.leftStickY = ps2x.Analog(PSS_LY) / 128.0f - 1.0f; // Chuyển đổi từ 0-255 sang -1.0 to 1.0
     data.gamepadData.rightStickX = ps2x.Analog(PSS_RX) / 128.0f - 1.0f;
     data.gamepadData.leftStickX = ps2x.Analog(PSS_LX)  / 128.0f - 1.0f;
-    date.gamepadData.rightStickY = ps2x.Analog(PSS_RY) / 128.0f - 1.0f;
+    data.gamepadData.rightStickY = ps2x.Analog(PSS_RY) / 128.0f - 1.0f;
 
     data.gamepadData.leftTrigger = ps2x.Analog(PSAB_L2) / 255.0f;
-    data.gamepadData.rightTrigger = ps2x.Analog(PSAB_R2) / 255.0f
+    data.gamepadData.rightTrigger = ps2x.Analog(PSAB_R2) / 255.0f;
 
     data.gamepadData.leftBumper = ps2x.Button(PSB_L1) ;
     data.gamepadData.rightBumper = ps2x.Button(PSB_R1) ;
